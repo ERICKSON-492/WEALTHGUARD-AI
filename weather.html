@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WealthGuard AI - Intelligent Financial Analysis</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #7c3aed;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: var(--gray-800);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--gray-200);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            transform: translateY(-2px);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: var(--gray-100);
+            color: var(--gray-700);
+            border: 1px solid var(--gray-300);
+        }
+
+        .btn-secondary:hover {
+            background: var(--gray-200);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--gray-700);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--gray-200);
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--gray-200);
+            border-radius: 8px;
+            font-size: 16px;
+            background: white;
+            cursor: pointer;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--gray-200);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.6s ease;
+        }
+
+        .score-excellent { background: var(--success); }
+        .score-good { background: var(--warning); }
+        .score-poor { background: var(--danger); }
+
+        .health-gauge {
+            width: 120px;
+            height: 120px;
+            position: relative;
+        }
+
+        .gauge-background {
+            fill: none;
+            stroke: var(--gray-200);
+            stroke-width: 8;
+        }
+
+        .gauge-progress {
+            fill: none;
+            stroke-width: 8;
+            stroke-linecap: round;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+            transition: stroke-dasharray 0.6s ease;
+        }
+
+        .gauge-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .gauge-score {
+            font-size: 24px;
+            font-weight: 700;
+            display: block;
+        }
+
+        .gauge-label {
+            font-size: 12px;
+            color: var(--gray-600);
+            display: block;
+        }
+
+        .insight-item {
+            padding: 1rem;
+            background: var(--gray-50);
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .recommendation-item {
+            padding: 1rem;
+            background: var(--gray-50);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border-left: 4px solid var(--success);
+        }
+
+        .risk-high { border-left-color: var(--danger); }
+        .risk-medium { border-left-color: var(--warning); }
+        .risk-low { border-left-color: var(--success); }
+
+        .budget-category {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            padding: 1rem;
+            background: var(--gray-50);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .investment-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #ffffff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .text-center { text-align: center; }
+        .text-success { color: var(--success); }
+        .text-warning { color: var(--warning); }
+        .text-danger { color: var(--danger); }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .header h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+
+        .header p {
+            font-size: 1.25rem;
+            color: var(--gray-600);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 768px) {
+            .grid-2, .grid-3 {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            
+            .container {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Welcome Screen -->
+        <div id="welcomeScreen" class="card text-center">
+            <div class="header">
+                <h1><i class="fas fa-shield-alt"></i> WealthGuard AI</h1>
+                <p>Your intelligent financial companion for smarter money management</p>
+            </div>
+            
+            <div class="grid-3">
+                <div class="card">
+                    <i class="fas fa-robot fa-3x text-primary" style="color: var(--primary); margin-bottom: 1rem;"></i>
+                    <h3>AI-Powered Analysis</h3>
+                    <p>Advanced algorithms analyze your financial health and provide personalized insights</p>
+                </div>
+                <div class="card">
+                    <i class="fas fa-chart-pie fa-3x text-primary" style="color: var(--primary); margin-bottom: 1rem;"></i>
+                    <h3>Smart Budgeting</h3>
+                    <p>Get optimized budget recommendations with potential savings calculations</p>
+                </div>
+                <div class="card">
+                    <i class="fas fa-trending-up fa-3x text-primary" style="color: var(--primary); margin-bottom: 1rem;"></i>
+                    <h3>Investment Advice</h3>
+                    <p>Personalized investment strategies based on your risk profile and goals</p>
+                </div>
+            </div>
+
+            <div style="margin-top: 3rem;">
+                <button class="btn btn-primary" onclick="showSection('personalInfo')">
+                    <i class="fas fa-rocket"></i> Start Financial Analysis
+                </button>
+            </div>
+        </div>
+
+        <!-- Personal Information Form -->
+        <div id="personalInfo" class="hidden card">
+            <h2><i class="fas fa-user"></i> Personal Information</h2>
+            <p class="form-label">Let's start with some basic information about you</p>
+            
+            <div class="form-group">
+                <label class="form-label">Full Name</label>
+                <input type="text" id="userName" class="form-input" placeholder="Enter your full name">
+            </div>
+            
+            <div class="grid-2">
+                <div class="form-group">
+                    <label class="form-label">Monthly Income</label>
+                    <input type="number" id="monthlyIncome" class="form-input" placeholder="0.00" min="0" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Monthly Expenses</label>
+                    <input type="number" id="monthlyExpenses" class="form-input" placeholder="0.00" min="0" step="0.01">
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="form-group">
+                    <label class="form-label">Total Savings</label>
+                    <input type="number" id="totalSavings" class="form-input" placeholder="0.00" min="0" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Total Debt</label>
+                    <input type="number" id="totalDebt" class="form-input" placeholder="0.00" min="0" step="0.01">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Risk Tolerance</label>
+                <select id="riskTolerance" class="form-select">
+                    <option value="">Select your risk tolerance</option>
+                    <option value="conservative">Conservative (Low Risk)</option>
+                    <option value="moderate">Moderate (Balanced Risk)</option>
+                    <option value="aggressive">Aggressive (High Risk)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Financial Goals (Add one at a time)</label>
+                <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                    <input type="text" id="goalInput" class="form-input" placeholder="e.g., Save for down payment">
+                    <button class="btn btn-secondary" onclick="addGoal()"><i class="fas fa-plus"></i> Add</button>
+                </div>
+                <div id="goalsList"></div>
+            </div>
+
+            <div style="display: flex; gap: 1rem; justify-content: space-between;">
+                <button class="btn btn-secondary" onclick="showSection('welcomeScreen')">
+                    <i class="fas fa-arrow-left"></i> Back
+                </button>
+                <button class="btn btn-primary" onclick="showSection('expenseBreakdown')">
+                    Continue <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Expense Breakdown -->
+        <div id="expenseBreakdown" class="hidden card">
+            <h2><i class="fas fa-chart-pie"></i> Expense Breakdown</h2>
+            <p class="form-label">Categorize your monthly expenses to get detailed insights</p>
+            
+            <div id="expenseCategories">
+                <div class="form-group">
+                    <label class="form-label">Remaining to categorize: <span id="remainingAmount">$0.00</span></label>
+                </div>
+                
+                <div class="form-group">
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" id="categoryName" class="form-input" placeholder="Category name (e.g., Rent, Food)">
+                        <input type="number" id="categoryAmount" class="form-input" placeholder="Amount" step="0.01">
+                        <button class="btn btn-primary" onclick="addExpenseCategory()"><i class="fas fa-plus"></i> Add</button>
+                    </div>
+                </div>
+                
+                <div id="categoriesList"></div>
+            </div>
+
+            <div style="display: flex; gap: 1rem; justify-content: space-between; margin-top: 2rem;">
+                <button class="btn btn-secondary" onclick="showSection('personalInfo')">
+                    <i class="fas fa-arrow-left"></i> Back
+                </button>
+                <button class="btn btn-primary" onclick="analyzeFinances()" id="analyzeBtn">
+                    <i class="fas fa-brain"></i> Analyze My Finances
+                </button>
+            </div>
+        </div>
+
+        <!-- Loading Screen -->
+        <div id="loadingScreen" class="hidden card text-center">
+            <div style="padding: 4rem 2rem;">
+                <div class="loading" style="width: 60px; height: 60px; border-width: 4px; margin: 0 auto 2rem;"></div>
+                <h2>AI is analyzing your finances...</h2>
+                <p>This may take a few moments as we process your financial data</p>
+            </div>
+        </div>
+
+        <!-- Results Dashboard -->
+        <div id="resultsDashboard" class="hidden">
+            <!-- Header -->
+            <div class="card">
+                <div style="display: flex; justify-content: between; align-items: center;">
+                    <div>
+                        <h1>Financial Health Report</h1>
+                        <p id="reportDate" style="color: var(--gray-600);"></p>
+                    </div>
+                    <div id="mainGauge"></div>
+                </div>
+            </div>
+
+            <!-- Key Metrics -->
+            <div class="grid-3">
+                <div class="card text-center">
+                    <i class="fas fa-wallet fa-2x" style="color: var(--success); margin-bottom: 1rem;"></i>
+                    <h3 id="savingsRate">0%</h3>
+                    <p>Savings Rate</p>
+                </div>
+                <div class="card text-center">
+                    <i class="fas fa-credit-card fa-2x" style="color: var(--warning); margin-bottom: 1rem;"></i>
+                    <h3 id="debtRatio">0%</h3>
+                    <p>Debt-to-Income</p>
+                </div>
+                <div class="card text-center">
+                    <i class="fas fa-piggy-bank fa-2x" style="color: var(--primary); margin-bottom: 1rem;"></i>
+                    <h3 id="emergencyFund">0 months</h3>
+                    <p>Emergency Fund</p>
+                </div>
+            </div>
+
+            <!-- Detailed Scores -->
+            <div class="card">
+                <h2><i class="fas fa-chart-bar"></i> Detailed Health Scores</h2>
+                <div class="grid-2">
+                    <div>
+                        <div class="form-group">
+                            <label>Spending Efficiency <span id="spendingScore">0</span>/100</label>
+                            <div class="progress-bar">
+                                <div class="progress-fill score-good" id="spendingBar" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Savings Health <span id="savingsScore">0</span>/100</label>
+                            <div class="progress-bar">
+                                <div class="progress-fill score-good" id="savingsBar" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="form-group">
+                            <label>Debt Management <span id="debtScore">0</span>/100</label>
+                            <div class="progress-bar">
+                                <div class="progress-fill score-good" id="debtBar" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Investment Readiness <span id="investmentScore">0</span>/100</label>
+                            <div class="progress-bar">
+                                <div class="progress-fill score-good" id="investmentBar" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Insights -->
+            <div class="card">
+                <h2><i class="fas fa-lightbulb"></i> AI-Powered Insights</h2>
+                <div id="insightsList"></div>
+            </div>
+
+            <!-- Budget Recommendations -->
+            <div class="card">
+                <h2><i class="fas fa-money-bill-wave"></i> Budget Optimization</h2>
+                <div id="budgetRecommendations"></div>
+            </div>
+
+            <!-- Investment Advice -->
+            <div class="card">
+                <h2><i class="fas fa-trending-up"></i> Investment Recommendations</h2>
+                <div id="investmentRecommendations"></div>
+            </div>
+
+            <!-- Risk Assessment -->
+            <div class="card">
+                <h2><i class="fas fa-exclamation-triangle"></i> Risk Assessment</h2>
+                <div id="riskAssessment" class="insight-item"></div>
+            </div>
+
+            <!-- Action Plan -->
+            <div class="card">
+                <h2><i class="fas fa-list-check"></i> Your Action Plan</h2>
+                <div id="actionPlan"></div>
+            </div>
+
+            <div class="text-center" style="margin-top: 2rem;">
+                <button class="btn btn-primary" onclick="showSection('welcomeScreen')">
+                    <i class="fas fa-sync"></i> Start New Analysis
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global data storage
+        let userData = {
+            name: '',
+            monthlyIncome: 0,
+            monthlyExpenses: 0,
+            totalSavings: 0,
+            totalDebt: 0,
+            riskTolerance: '',
+            goals: [],
+            expenseCategories: []
+        };
+
+        let remainingExpenses = 0;
+
+        // Navigation functions
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('div[id$="Screen"], div[id$="Info"], div[id$="breakdown"], div[id$="Dashboard"]').forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            // Show target section
+            document.getElementById(sectionId).classList.remove('hidden');
+            
+            // Update expense breakdown if needed
+            if (sectionId === 'expenseBreakdown') {
+                updateExpenseBreakdown();
+            }
+        }
+
+        // Goal management
+        function addGoal() {
+            const goalInput = document.getElementById('goalInput');
+            const goal = goalInput.value.trim();
+            
+            if (goal) {
+                userData.goals.push(goal);
+                updateGoalsList();
+                goalInput.value = '';
+            }
+        }
+
+        function updateGoalsList() {
+            const goalsList = document.getElementById('goalsList');
+            goalsList.innerHTML = userData.goals.map((goal, index) => `
+                <div style="display: flex; justify-content: between; align-items: center; padding: 8px; background: var(--gray-100); border-radius: 6px; margin-bottom: 5px;">
+                    <span>${goal}</span>
+                    <button onclick="removeGoal(${index})" style="background: none; border: none; color: var(--danger); cursor: pointer;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function removeGoal(index) {
+            userData.goals.splice(index, 1);
+            updateGoalsList();
+        }
+
+        // Expense category management
+        function updateExpenseBreakdown() {
+            userData.monthlyIncome = parseFloat(document.getElementById('monthlyIncome').value) || 0;
+            userData.monthlyExpenses = parseFloat(document.getElementById('monthlyExpenses').value) || 0;
+            remainingExpenses = userData.monthlyExpenses;
+            
+            document.getElementById('remainingAmount').textContent = formatCurrency(remainingExpenses);
+            updateCategoriesList();
+        }
+
+        function addExpenseCategory() {
+            const nameInput = document.getElementById('categoryName');
+            const amountInput = document.getElementById('categoryAmount');
+            
+            const name = nameInput.value.trim();
+            const amount = parseFloat(amountInput.value) || 0;
+            
+            if (name && amount > 0) {
+                const actualAmount = Math.min(amount, remainingExpenses);
+                userData.expenseCategories.push({
+                    name: name,
+                    amount: actualAmount
+                });
+                
+                remainingExpenses -= actualAmount;
+                updateExpenseBreakdown();
+                
+                nameInput.value = '';
+                amountInput.value = '';
+            }
+        }
+
+        function updateCategoriesList() {
+            const categoriesList = document.getElementById('categoriesList');
+            const totalCategorized = userData.expenseCategories.reduce((sum, cat) => sum + cat.amount, 0);
+            
+            categoriesList.innerHTML = userData.expenseCategories.map((category, index) => `
+                <div class="budget-category">
+                    <div>
+                        <strong>${category.name}</strong>
+                        <div>${formatCurrency(category.amount)}</div>
+                    </div>
+                    <button onclick="removeCategory(${index})" class="btn btn-secondary" style="padding: 8px 12px;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `).join('');
+            
+            if (remainingExpenses <= 0) {
+                document.getElementById('analyzeBtn').disabled = false;
+            }
+        }
+
+        function removeCategory(index) {
+            const removed = userData.expenseCategories.splice(index, 1)[0];
+            remainingExpenses += removed.amount;
+            updateExpenseBreakdown();
+        }
+
+        // Main analysis function
+        function analyzeFinances() {
+            // Collect all user data
+            userData.name = document.getElementById('userName').value;
+            userData.monthlyIncome = parseFloat(document.getElementById('monthlyIncome').value) || 0;
+            userData.monthlyExpenses = parseFloat(document.getElementById('monthlyExpenses').value) || 0;
+            userData.totalSavings = parseFloat(document.getElementById('totalSavings').value) || 0;
+            userData.totalDebt = parseFloat(document.getElementById('totalDebt').value) || 0;
+            userData.riskTolerance = document.getElementById('riskTolerance').value;
+            
+            // Validate required fields
+            if (!userData.name || !userData.monthlyIncome || !userData.monthlyExpenses || !userData.riskTolerance) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            showSection('loadingScreen');
+            
+            // Simulate AI processing time
+            setTimeout(() => {
+                const analysis = performFinancialAnalysis();
+                displayResults(analysis);
+                showSection('resultsDashboard');
+            }, 3000);
+        }
+
+        // AI Financial Analysis Engine
+        function performFinancialAnalysis() {
+            const analysis = {
+                healthScore: {},
+                insights: [],
+                recommendations: [],
+                budgetOptimizations: [],
+                investmentRecommendations: [],
+                riskAssessment: ''
+            };
+
+            // Calculate individual scores
+            analysis.healthScore.spending = calculateSpendingScore();
+            analysis.healthScore.savings = calculateSavingsScore();
+            analysis.healthScore.debt = calculateDebtScore();
+            analysis.healthScore.investment = calculateInvestmentScore();
+            
+            // Overall score (weighted average)
+            analysis.healthScore.overall = 
+                (analysis.healthScore.spending * 0.35) +
+                (analysis.healthScore.savings * 0.25) +
+                (analysis.healthScore.debt * 0.25) +
+                (analysis.healthScore.investment * 0.15);
+
+            // Generate insights and recommendations
+            generateInsights(analysis);
+            generateBudgetOptimizations(analysis);
+            generateInvestmentRecommendations(analysis);
+            generateRiskAssessment(analysis);
+
+            return analysis;
+        }
+
+        function calculateSpendingScore() {
+            if (userData.monthlyIncome <= 0) return 0;
+            
+            const spendingRatio = userData.monthlyExpenses / userData.monthlyIncome;
+            let ratioScore;
+            
+            if (spendingRatio <= 0.5) ratioScore = 100;
+            else if (spendingRatio <= 0.7) ratioScore = 70;
+            else if (spendingRatio <= 0.9) ratioScore = 40;
+            else ratioScore = 20;
+            
+            // Category diversity bonus
+            const uniqueCategories = userData.expenseCategories.length;
+            const diversityScore = Math.min(uniqueCategories * 10, 30);
+            
+            return (ratioScore * 0.7) + (diversityScore * 0.3);
+        }
+
+        function calculateSavingsScore() {
+            if (userData.monthlyIncome <= 0) return 0;
+            
+            // Emergency fund coverage
+            const emergencyFundRatio = userData.totalSavings / (userData.monthlyExpenses * 6);
+            let emergencyScore;
+            
+            if (emergencyFundRatio >= 1) emergencyScore = 100;
+            else if (emergencyFundRatio >= 0.5) emergencyScore = 70;
+            else if (emergencyFundRatio >= 0.25) emergencyScore = 40;
+            else emergencyScore = 20;
+            
+            // Savings rate
+            const savingsRate = (userData.monthlyIncome - userData.monthlyExpenses) / userData.monthlyIncome;
+            const savingsRateScore = Math.min(savingsRate * 500, 100);
+            
+            return (emergencyScore * 0.6) + (savingsRateScore * 0.4);
+        }
+
+        function calculateDebtScore() {
+            if (userData.monthlyIncome <= 0) return 100;
+            
+            const debtToIncome = userData.totalDebt / userData.monthlyIncome;
+            let debtRatioScore;
+            
+            if (debtToIncome <= 0.36) debtRatioScore = 100;
+            else if (debtToIncome <= 0.5) debtRatioScore = 70;
+            else if (debtToIncome <= 0.7) debtRatioScore = 40;
+            else debtRatioScore = 20;
+            
+            // Absolute debt consideration
+            let absoluteDebtScore;
+            if (userData.totalDebt === 0) absoluteDebtScore = 100;
+            else if (userData.totalDebt < 10000) absoluteDebtScore = 80;
+            else if (userData.totalDebt < 50000) absoluteDebtScore = 60;
+            else absoluteDebtScore = 30;
+            
+            return (debtRatioScore * 0.7) + (absoluteDebtScore * 0.3);
+        }
+
+        function calculateInvestmentScore() {
+            if (userData.monthlyIncome <= 0) return 0;
+            
+            const investmentRatio = userData.totalSavings / userData.monthlyIncome;
+            if (investmentRatio >= 1) return 100;
+            else if (investmentRatio >= 0.5) return 75;
+            else if (investmentRatio >= 0.25) return 50;
+            else if (investmentRatio >= 0.1) return 25;
+            else return 10;
+        }
+
+        function generateInsights(analysis) {
+            const spendingRatio = (userData.monthlyExpenses / userData.monthlyIncome) * 100;
+            const savingsRate = ((userData.monthlyIncome - userData.monthlyExpenses) / userData.monthlyIncome) * 100;
+            const debtRatio = (userData.totalDebt / userData.monthlyIncome) * 100;
+            
+            analysis.insights.push(`Your spending represents ${spendingRatio.toFixed(1)}% of your income`);
+            analysis.insights.push(`Current savings rate: ${savingsRate.toFixed(1)}% of monthly income`);
+            analysis.insights.push(`Debt-to-income ratio: ${debtRatio.toFixed(1)}%`);
+            
+            if (spendingRatio > 70) {
+                analysis.insights.push("Consider reducing discretionary spending to improve financial health");
+            }
+            
+            if (savingsRate < 10) {
+                analysis.insights.push("Try to increase your savings rate to at least 10-15% for better financial security");
+            }
+        }
+
+        function generateBudgetOptimizations(analysis) {
+            analysis.budgetOptimizations = userData.expenseCategories.map(category => {
+                let recommended = category.amount;
+                const categoryRatio = category.amount / userData.monthlyExpenses;
+                
+                // AI optimization logic
+                if (isDiscretionaryCategory(category.name) && categoryRatio > 0.2) {
+                    recommended = category.amount * 0.8; // Reduce by 20%
+                } else if (isEssentialCategory(category.name)) {
+                    recommended = category.amount; // Keep essential spending
+                } else {
+                    recommended = category.amount * 0.9; // Slight reduction
+                }
+                
+                return {
+                    category: category.name,
+                    current: category.amount,
+                    recommended: recommended,
+                    savings: category.amount - recommended
+                };
+            }).filter(opt => opt.savings > 0);
+        }
+
+        function generateInvestmentRecommendations(analysis) {
+            analysis.investmentRecommendations = [];
+            
+            if (userData.totalSavings < 1000) {
+                analysis.investmentRecommendations.push({
+                    type: "High-Yield Savings Account",
+                    risk: "Low",
+                    return: 0.045,
+                    description: "Build emergency fund with easy access to cash",
+                    timeframe: "0-2 years"
+                });
+            } else if (userData.totalSavings < 10000) {
+                analysis.investmentRecommendations.push(
+                    {
+                        type: "S&P 500 Index Fund",
+                        risk: "Medium",
+                        return: 0.08,
+                        description: "Diversified stock market exposure with low fees",
+                        timeframe: "5+ years"
+                    },
+                    {
+                        type: "Robo-Advisor Portfolio",
+                        risk: "Medium",
+                        return: 0.07,
+                        description: "Automated investing based on your risk tolerance",
+                        timeframe: "3-5 years"
+                    }
+                );
+            } else {
+                analysis.investmentRecommendations.push(
+                    {
+                        type: "Target Date Fund",
+                        risk: "Medium",
+                        return: 0.075,
+                        description: "Automatically adjusts risk as you approach retirement",
+                        timeframe: "10+ years"
+                    },
+                    {
+                        type: "Real Estate ETF",
+                        risk: "Medium-High",
+                        return: 0.09,
+                        description: "Diversify into real estate markets",
+                        timeframe: "5+ years"
+                    }
+                );
+            }
+        }
+
+        function generateRiskAssessment(analysis) {
+            const score = analysis.healthScore.overall;
+            
+            if (score >= 80) {
+                analysis.riskAssessment = "LOW RISK - Excellent financial health. Focus on wealth preservation and growth strategies.";
+            } else if (score >= 60) {
+                analysis.riskAssessment = "MODERATE RISK - Good foundation with some areas for improvement. Balanced approach recommended.";
+            } else if (score >= 40) {
+                analysis.riskAssessment = "ELEVATED RISK - Several areas need attention. Focus on debt reduction and emergency fund building.";
+            } else {
+                analysis.riskAssessment = "HIGH RISK - Immediate action needed. Prioritize essential expenses and debt management.";
+            }
+        }
+
+        function isDiscretionaryCategory(category) {
+            const discretionary = ["dining", "entertainment", "shopping", "hobbies", "travel", "subscriptions"];
+            return discretionary.some(term => category.toLowerCase().includes(term));
+        }
+
+        function isEssentialCategory(category) {
+            const essential = ["rent", "mortgage", "utilities", "groceries", "healthcare", "insurance", "transportation"];
+            return essential.some(term => category.toLowerCase().includes(term));
+        }
+
+        // Display results
+        function displayResults(analysis) {
+            // Set report date
+            document.getElementById('reportDate').textContent = `Generated on ${new Date().toLocaleDateString()} for ${userData.name}`;
+            
+            // Display main gauge
+            displayHealthGauge(analysis.healthScore.overall, 'mainGauge');
+            
+            // Update key metrics
+            const savingsRate = ((userData.monthlyIncome - userData.monthlyExpenses) / userData.monthlyIncome) * 100;
+            const debtRatio = (userData.totalDebt / userData.monthlyIncome) * 100;
+            const emergencyMonths = userData.totalSavings / userData.monthlyExpenses;
+            
+            document.getElementById('savingsRate').textContent = savingsRate.toFixed(1) + '%';
+            document.getElementById('debtRatio').textContent = debtRatio.toFixed(1) + '%';
+            document.getElementById('emergencyFund').textContent = emergencyMonths.toFixed(1) + ' months';
+            
+            // Update detailed scores
+            updateScoreDisplay('spending', analysis.healthScore.spending);
+            updateScoreDisplay('savings', analysis.healthScore.savings);
+            updateScoreDisplay('debt', analysis.healthScore.debt);
+            updateScoreDisplay('investment', analysis.healthScore.investment);
+            
+            // Display insights
+            document.getElementById('insightsList').innerHTML = analysis.insights.map(insight => `
+                <div class="insight-item">${insight}</div>
+            `).join('');
+            
+            // Display budget recommendations
+            const totalSavings = analysis.budgetOptimizations.reduce((sum, opt) => sum + opt.savings, 0);
+            document.getElementById('budgetRecommendations').innerHTML = `
+                <div style="background: var(--success); color: white; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                    <h3 style="margin: 0;">Potential Monthly Savings: ${formatCurrency(totalSavings)}</h3>
+                </div>
+                ${analysis.budgetOptimizations.map(opt => `
+                    <div class="budget-category">
+                        <div style="flex: 1;">
+                            <strong>${opt.category}</strong>
+                            <div>Current: ${formatCurrency(opt.current)} → Recommended: ${formatCurrency(opt.recommended)}</div>
+                        </div>
+                        <div style="color: var(--success); font-weight: bold;">
+                            Save ${formatCurrency(opt.savings)}
+                        </div>
+                    </div>
+                `).join('')}
+            `;
+            
+            // Display investment recommendations
+            document.getElementById('investmentRecommendations').innerHTML = analysis.investmentRecommendations.map(inv => `
+                <div class="investment-card">
+                    <h3 style="margin-bottom: 0.5rem;">${inv.type}</h3>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <span>Risk: ${inv.risk}</span>
+                        <span>Return: ${(inv.return * 100).toFixed(1)}%</span>
+                    </div>
+                    <p style="margin-bottom: 0.5rem;">${inv.description}</p>
+                    <small>Timeframe: ${inv.timeframe}</small>
+                </div>
+            `).join('');
+            
+            // Display risk assessment
+            document.getElementById('riskAssessment').textContent = analysis.riskAssessment;
+            
+            // Display action plan
+            document.getElementById('actionPlan').innerHTML = `
+                <div class="recommendation-item">
+                    <h4>Immediate Actions (Next 30 days)</h4>
+                    <ul>
+                        <li>Review and implement budget optimizations</li>
+                        <li>Set up automatic savings transfers</li>
+                        <li>Create debt repayment plan</li>
+                    </ul>
+                </div>
+                <div class="recommendation-item">
+                    <h4>Short-term Goals (3-6 months)</h4>
+                    <ul>
+                        <li>Build 3-month emergency fund</li>
+                        <li>Start investment account with recommended allocation</li>
+                        <li>Reduce high-interest debt by 20%</li>
+                    </ul>
+                </div>
+                <div class="recommendation-item">
+                    <h4>Long-term Strategy (1+ years)</h4>
+                    <ul>
+                        <li>Achieve 6-month emergency fund</li>
+                        <li>Increase investment contributions to 15% of income</li>
+                        <li>Work towards financial goals: ${userData.goals.join(', ')}</li>
+                    </ul>
+                </div>
+            `;
+        }
+
+        function displayHealthGauge(score, elementId) {
+            const circumference = 2 * Math.PI * 45;
+            const strokeDasharray = `${(score / 100) * circumference} ${circumference}`;
+            const color = score >= 80 ? '#10b981' : score >= 60 ? '#f59e0b' : '#ef4444';
+            const label = score >= 80 ? 'Excellent' : score >= 60 ? 'Good' : 'Needs Improvement';
+            
+            document.getElementById(elementId).innerHTML = `
+                <div class="health-gauge">
+                    <svg width="120" height="120" viewBox="0 0 120 120">
+                        <circle class="gauge-background" cx="60" cy="60" r="45"></circle>
+                        <circle class="gauge-progress" cx="60" cy="60" r="45" 
+                                stroke="${color}" stroke-dasharray="${strokeDasharray}"></circle>
+                    </svg>
+                    <div class="gauge-text">
+                        <span class="gauge-score" style="color: ${color}">${Math.round(score)}</span>
+                        <span class="gauge-label">${label}</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        function updateScoreDisplay(type, score) {
+            document.getElementById(`${type}Score`).textContent = Math.round(score);
+            document.getElementById(`${type}Bar`).style.width = `${score}%`;
+            
+            const color = score >= 80 ? 'var(--success)' : score >= 60 ? 'var(--warning)' : 'var(--danger)';
+            document.getElementById(`${type}Bar`).style.background = color;
+        }
+
+        // Utility functions
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD'
+            }).format(amount);
+        }
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set current date for reports
+            document.getElementById('reportDate').textContent = `Generated on ${new Date().toLocaleDateString()}`;
+        });
+    </script>
+</body>
+</html>
